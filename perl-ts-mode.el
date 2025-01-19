@@ -430,6 +430,9 @@ Takes all the relevent commands from `cperl-mode'."
 	       (treesit-ready-p 'pod))
     (error "Grammer for perl or pod is not available"))
   (setq-local cperl-electric-keywords t)
+  (setq-local electric-pair-pairs
+	      '((?\" . ?\") (?\' . ?\') (?\" . ?\")
+		(?\[ . ?\]) (?\{ . ?\}) (?\( . ?\))))
   (setq treesit-language-at-point-function 'perl-ts-language-at-point)
   ;; We can't use the treesitter interface of imenu because of perl's
   ;; package class system where it is hard to tell which class
