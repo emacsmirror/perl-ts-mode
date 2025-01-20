@@ -5,7 +5,9 @@
 ;; Author: Pranshu Sharma <pranshu@bauherren.ovh>
 ;; Created: 2025, Jan
 ;; Keywords: languages, Perl
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "29.1"))
+;; Version: 1.0.0
+;; URL: https://hg.sr.ht/~pranshu/perl-ts-mode
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,14 +29,16 @@
 ;; Major mode for editing perl
 
 ;; Uses grammer at:
-;; https://github.com/tree-sitter-perl/tree-sitter-perl branch: release 
-;; https://github.com/tree-sitter-perl/tree-sitter-pod branch: release 
+;; https://github.com/tree-sitter-perl/tree-sitter-perl branch: release
+;; https://github.com/tree-sitter-perl/tree-sitter-pod branch: release
 
 (require 'cperl-mode)
 (require 'treesit)
 
-(defgroup perl-ts-mode nil
-  "Major mode for editing perl files"
+;;; Code:
+
+(defgroup perl-ts nil
+  "Major mode for editing perl files."
   :group 'languages
   :prefix "perl-ts-")
 
@@ -44,7 +48,8 @@
   :type 'boolean)
 
 (defun perl-ts-str-to-list (str)
-  "Converts a space seperated string(s) to an array."
+  "Converts a space seperated string(s) to an array.
+Argument STR is either a string, or a list of strings."
    (split-string
     (if (listp str)
 	(mapconcat (lambda (s) (concat s " ")) str)
@@ -89,8 +94,7 @@
        "grep keys last map next"
        "no our package pop pos print printf prototype"
        "splice split state study tie"
-       "tied try unless unshift untie")
-     )
+       "tied try unless unshift untie"))
     t)
    "\\'")
   "Functions cannot be overriden in perl.")
@@ -126,7 +130,7 @@
 			  'face face)))
 
 (defun perl-ts-fontify-function (node &rest _)
-  "Fontify perl function."
+  "Fontify perl function name at NODE."
   (let ((node-text (treesit-node-text node)))
     (cond
      ((string-match perl-ts-non-overidable node-text)
@@ -136,7 +140,7 @@
 
 ;; Not using regexes to highlight regexes? Ya know that's heard of
 (defun perl-ts-highlight-regex (node &rest _)
-  "Function that highlights regex ranging from node."
+  "Function that highlights regex ranging from NODE."
   (let ((start (treesit-node-start node))
 	(end (treesit-node-end node)))
     ;; To do this most efficiantly, we will go char by char
@@ -186,6 +190,7 @@
      (catch-all parent 2))))
 
 (defun perl-ts-highlight-hash (node &rest _)
+  "Highlight the perl hash at NODE."
   (unless (treesit-node-children node)
     (put-text-property
      (treesit-node-start node)
@@ -306,7 +311,7 @@
     (special-functions)))
 
 (defun perl-ts-function-name (node)
-  "subroutine_declaration_statement"
+  "Highlight the function name at NODE accordingly."
   (while (and
 	  node
 	  (not (string= "subroutine_declaration_statement"
@@ -324,7 +329,7 @@
       (seq-filter
        'identity
        (append
-	(mapcar 
+	(mapcar
 	 (pcase-lambda (`(,name . ,node))
 	   (if (eq 'package name)
 	       (prog1 nil
@@ -344,9 +349,12 @@
 	(apply 'append
 	       (mapcar
 		(lambda (class_node)
-		  (let ((cname (treesit-node-text
-				(treesit-node-child-by-field-name (cdr class_node) "name")
-				t)))
+		  (let ((cname
+			 (treesit-node-text
+			  (treesit-node-child-by-field-name
+			   (cdr class_node)
+			   "name")
+			  t)))
 		    (mapcar
 		     (lambda (node)
 		       (cons
@@ -366,7 +374,7 @@
 				       '((class_statement) @class)))))))))
 
 (defun perl-ts-sexp (node)
-  "Returns non-nil"
+  "Returns non-nil when NODE is a sexp."
   (let ((nt (treesit-node-text node 1)))
     (and
      (not (member nt '( "{" "}" "[" "]" "(" ")" ";")))
@@ -393,7 +401,7 @@
   "Thingy Minginy.")
 
 (defun perl-ts-heading-comment (node)
-  "Matches a comment that starts with multiple hashes."
+  "Matches a comment NODE that starts with multiple hashes."
   (if (string= (treesit-node-type node) "comment")
       (and
        (save-excursion
@@ -403,6 +411,7 @@
 		(substring (treesit-node-text node t) 0 3))) t))
 
 (defun perl-ts-language-at-point (point)
+  "Return language at POINT."
   (if (string= "pod"
 	       (treesit-node-type (treesit-node-at point 'perl)))
       'pod
@@ -484,3 +493,5 @@ Takes all the relevent commands from `cperl-mode'."
   (treesit-major-mode-setup))
 
 (provide 'perl-ts-mode)
+
+;;; perl-ts-mode.el ends here
