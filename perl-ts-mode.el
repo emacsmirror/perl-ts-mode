@@ -47,30 +47,37 @@
 `perl-ts-mode' will need to be reloaded if this changed."
   :type 'boolean)
 
+(defcustom perl-ts-font-lock-level 4
+  "Level of font lock, 1 for minimum highlghting and 4 for maximum."
+  :type '(choice (const :tag "Minimal Highlighting" 1)
+		 (const :tag "Low Highlighting" 2)
+		 (const :tag "High Highlighting" 3)
+		 (const :tag "Maximum Highlighting" 4)))
+
 (defun perl-ts-str-to-list (str)
   "Converts a space seperated string(s) to an array.
 Argument STR is either a string, or a list of strings."
-   (split-string
-    (if (listp str)
-	(mapconcat (lambda (s) (concat s " ")) str)
-      str)))
+  (split-string
+   (if (listp str)
+       (mapconcat (lambda (s) (concat s " ")) str)
+     str)))
 
 (defvar perl-ts-syntax-table
-      (eval-when-compile
-	(let ((table (make-syntax-table))
-	      (syntax-list
-	       '(("." ?/ ?* ?+ ?- ?= ?% ?< ?> ?&)
-		 ("\\"  ?$ ?\\)
-		 ("\"" ?' ?`)
-		 ("." ?|)
-		 ("<" ?#)
-		 (">" ?\n)
-		 ("_" ?:))))
-	  ;; The defaults are mostly fine
-	  (dolist (ls syntax-list table)
-	    (dolist (char (cdr ls))
-	      (modify-syntax-entry char (car ls) table)))))
-      "Syntax table for perl.")
+  (eval-when-compile
+    (let ((table (make-syntax-table))
+	  (syntax-list
+	   '(("." ?/ ?* ?+ ?- ?= ?% ?< ?> ?&)
+	     ("\\"  ?$ ?\\)
+	     ("\"" ?' ?`)
+	     ("." ?|)
+	     ("<" ?#)
+	     (">" ?\n)
+	     ("_" ?:))))
+      ;; The defaults are mostly fine
+      (dolist (ls syntax-list table)
+	(dolist (char (cdr ls))
+	  (modify-syntax-entry char (car ls) table)))))
+  "Syntax table for perl.")
 
 (defvar perl-ts-main-keywords
   (vconcat
@@ -449,6 +456,7 @@ Takes all the relevent commands from `cperl-mode'."
   (setq imenu-create-index-function 'perl-ts-imenu-create-index)
   (setq treesit-defun-type-regexp
 	"subroutine_declaration_statement\\|method_declaration_statement")
+  (setq-local treesit-font-lock-level perl-ts-font-lock-level)
   (setq treesit-thing-settings perl-ts-thing-settings)
   (setq treesit-defun-name-function 'perl-ts-function-name)
   (setq-local treesit-outline-predicate
@@ -480,10 +488,10 @@ Takes all the relevent commands from `cperl-mode'."
 	   'treesit-range-rules
            (if perl-ts-highlight-verbatim
 	       (append args
-		     '(:host pod
-			     :embed perl
-			     :local t
-			     ((verbatim_paragraph (content) @cap))))
+		       '(:host pod
+			       :embed perl
+			       :local t
+			       ((verbatim_paragraph (content) @cap))))
 	     args))))
   (setq treesit-primary-parser (treesit-parser-create 'perl))
   (setq font-lock-defaults nil
