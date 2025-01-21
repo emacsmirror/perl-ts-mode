@@ -407,15 +407,18 @@ Argument STR is either a string, or a list of strings."
      (text "plain_paragraph")))
   "Thingy Minginy.")
 
-(defun perl-ts-heading-comment (node)
+(defun perl-ts-outline-acceptable (node)
   "Matches a comment NODE that starts with multiple hashes."
-  (if (string= (treesit-node-type node) "comment")
-      (and
-       (save-excursion
-	 (goto-char (treesit-node-start node))
-	 (= (point) (line-beginning-position)))
-       (string= "###"
-		(substring (treesit-node-text node t) 0 3))) t))
+  (let ((gp (treesit-node-get node '((parent 3)))))
+    (if (and (string= (treesit-node-type node) "comment")
+	     (or (not gp)
+		 (member (treesit-node-type gp)
+			 '("class_statement" "package_statement"))))
+	(save-excursion
+	  (goto-char (treesit-node-start node))
+	  (= (point) (line-beginning-position)))
+      (string= "###"
+	       (substring (treesit-node-text node t) 0 3)) t)))
 
 (defun perl-ts-language-at-point (point)
   "Return language at POINT."
@@ -423,6 +426,20 @@ Argument STR is either a string, or a list of strings."
 	       (treesit-node-type (treesit-node-at point 'perl)))
       'pod
     'perl))
+
+(defun perl-ts-outline-level ()
+  "The `outline-level' function for `perl-ts-mode'."
+  (let ((node (treesit-node-at (point))))
+    (pcase (treesit-node-type node)
+      ;; pod comment
+      ("package" 1)
+      ("class" 2)
+      ("comment"
+       (string-match "^\\(#+\\)" (treesit-node-text node))
+       (match-end 1))
+      ("sub" 4)
+      ("method" 4)
+      (_ 1))))
 
 (defvar-keymap perl-ts-mode-map
   :doc "Keymap `for perl-ts-mode'.
@@ -470,7 +487,7 @@ Takes all the relevent commands from `cperl-mode'."
 				     "comment")
 				   t)
 		       "\\'")
-	       'perl-ts-heading-comment))
+	       'perl-ts-outline-acceptable))
   (setq comment-start "#")
   ;; EXTREMLY delicate
   (let ((args '(:host perl
@@ -498,7 +515,8 @@ Takes all the relevent commands from `cperl-mode'."
 	treesit-font-lock-settings perl-ts-font-lock
 	treesit-font-lock-feature-list perl-ts-font-lock-feature-list
 	treesit-simple-indent-rules perl-ts-indent-settings)
-  (treesit-major-mode-setup))
+  (treesit-major-mode-setup)
+  (setq-local outline-level #'perl-ts-outline-level))
 
 (provide 'perl-ts-mode)
 
