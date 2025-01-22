@@ -329,8 +329,9 @@ Argument STR is either a string, or a list of strings."
 
 (defun perl-ts-imenu-create-index ()
   "Creates the imenu index for perl."
-  (let ((main "(main)")
-	(mainp (treesit-node-parent (treesit-node-at 1))))
+  (let* ((main "(main)")
+	 mainn
+	 (mainp (treesit-node-parent (treesit-node-at 1))))
     ;; `n' is either a package or function name
     (save-excursion
       (seq-filter
@@ -341,13 +342,17 @@ Argument STR is either a string, or a list of strings."
 	   (if (eq 'package name)
 	       (prog1 nil
 		 (setq main (treesit-node-text node t))
-		 (setq mainp (treesit-node-parent (treesit-node-parent node))))
-	     (when (equal mainp (treesit-node-parent
-				 (treesit-node-parent node)))
-	       ;; Must not be a lexical funciton
-	       (cons (concat main "::" (treesit-node-text node))
-		     (progn (goto-char (treesit-node-start node))
-			    (point-marker))))))
+		 (setq mainn (treesit-node-parent node))
+		 (setq mainp (treesit-node-parent mainn)))
+	     (let ((parent (treesit-node-parent
+			    (treesit-node-parent node))))
+	       (when (or (equal mainp parent)
+			 (equal mainn (treesit-node-parent
+				       parent)))
+		 ;; Must not be a lexical funciton
+		 (cons (concat main "::" (treesit-node-text node))
+		       (progn (goto-char (treesit-node-start node))
+			      (point-marker)))))))
 	 (treesit-query-capture
 	  treesit-primary-parser
 	  '((package_statement name: (_) @package)
@@ -424,7 +429,7 @@ Argument STR is either a string, or a list of strings."
 
 (defun perl-ts-outline-level ()
   "The `outline-level' function for `perl-ts-mode'."
-  (let ((node (treesit-node-at (point))))
+  (let ((node (treesit-node-at (point) treesit-primary-parser)))
     (pcase (treesit-node-type node)
       ;; pod comment
       ("package" 1)
@@ -434,6 +439,7 @@ Argument STR is either a string, or a list of strings."
        (match-end 1))
       ("sub" 4)
       ("method" 4)
+      ("pod" 2)
       (_ 1))))
 
 (defvar-keymap perl-ts-mode-map
