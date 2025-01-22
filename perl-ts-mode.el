@@ -336,7 +336,7 @@ Argument STR is either a string, or a list of strings."
       (seq-filter
        'identity
        (append
-	(mapcar
+	(mapcar 
 	 (pcase-lambda (`(,name . ,node))
 	   (if (eq 'package name)
 	       (prog1 nil
@@ -356,12 +356,9 @@ Argument STR is either a string, or a list of strings."
 	(apply 'append
 	       (mapcar
 		(lambda (class_node)
-		  (let ((cname
-			 (treesit-node-text
-			  (treesit-node-child-by-field-name
-			   (cdr class_node)
-			   "name")
-			  t)))
+		  (let ((cname (treesit-node-text
+				(treesit-node-child-by-field-name (cdr class_node) "name")
+				t)))
 		    (mapcar
 		     (lambda (node)
 		       (cons
