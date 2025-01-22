@@ -409,16 +409,14 @@ Argument STR is either a string, or a list of strings."
 
 (defun perl-ts-outline-acceptable (node)
   "Matches a comment NODE that starts with multiple hashes."
-  (let ((gp (treesit-node-get node '((parent 3)))))
-    (if (and (string= (treesit-node-type node) "comment")
-	     (or (not gp)
-		 (member (treesit-node-type gp)
-			 '("class_statement" "package_statement"))))
-	(save-excursion
-	  (goto-char (treesit-node-start node))
-	  (= (point) (line-beginning-position)))
-      (string= "###"
-	       (substring (treesit-node-text node t) 0 3)) t)))
+  (message (treesit-node-type node))
+  (let ((gp (treesit-node-get node '((parent 2)))))
+    (and (or (not gp)
+	     (member (treesit-node-type gp)
+		     '("class_statement" "package_statement")))
+	 (if (string= (treesit-node-type node) "comment")
+	     (string= "###" (substring (treesit-node-text node t) 0 3))
+	   t))))
 
 (defun perl-ts-language-at-point (point)
   "Return language at POINT."
@@ -466,16 +464,16 @@ Takes all the relevent commands from `cperl-mode'."
   (setq-local electric-pair-pairs
 	      '((?\" . ?\") (?\' . ?\') (?\" . ?\")
 		(?\[ . ?\]) (?\{ . ?\}) (?\( . ?\))))
-  (setq treesit-language-at-point-function 'perl-ts-language-at-point)
+  (setq-local treesit-language-at-point-function 'perl-ts-language-at-point)
   ;; We can't use the treesitter interface of imenu because of perl's
   ;; package class system where it is hard to tell which class
   ;; function is in.
-  (setq imenu-create-index-function 'perl-ts-imenu-create-index)
-  (setq treesit-defun-type-regexp
+  (setq-local imenu-create-index-function 'perl-ts-imenu-create-index)
+  (setq-local treesit-defun-type-regexp
 	"subroutine_declaration_statement\\|method_declaration_statement")
   (setq-local treesit-font-lock-level perl-ts-font-lock-level)
-  (setq treesit-thing-settings perl-ts-thing-settings)
-  (setq treesit-defun-name-function 'perl-ts-function-name)
+  (setq-local treesit-thing-settings perl-ts-thing-settings)
+  (setq-local treesit-defun-name-function 'perl-ts-function-name)
   (setq-local treesit-outline-predicate
 	      (cons
 	       (concat "\\`"
@@ -488,7 +486,7 @@ Takes all the relevent commands from `cperl-mode'."
 				   t)
 		       "\\'")
 	       'perl-ts-outline-acceptable))
-  (setq comment-start "#")
+  (setq-local comment-start "#")
   ;; EXTREMLY delicate
   (let ((args '(:host perl
 		      :embed perl
@@ -500,21 +498,21 @@ Takes all the relevent commands from `cperl-mode'."
 		      :embed pod
 		      :host perl
 		      ((pod) @capture))))
-    (setq treesit-range-settings
-          (apply
-	   'treesit-range-rules
-           (if perl-ts-highlight-verbatim
-	       (append args
-		       '(:host pod
-			       :embed perl
-			       :local t
-			       ((verbatim_paragraph (content) @cap))))
-	     args))))
-  (setq treesit-primary-parser (treesit-parser-create 'perl))
-  (setq font-lock-defaults nil
-	treesit-font-lock-settings perl-ts-font-lock
-	treesit-font-lock-feature-list perl-ts-font-lock-feature-list
-	treesit-simple-indent-rules perl-ts-indent-settings)
+    (setq-local treesit-range-settings
+		(apply
+		 'treesit-range-rules
+		 (if perl-ts-highlight-verbatim
+		     (append args
+			     '(:host pod
+				     :embed perl
+				     :local t
+				     ((verbatim_paragraph (content) @cap))))
+		   args))))
+  (setq-local font-lock-defaults nil
+	      treesit-primary-parser (treesit-parser-create 'perl)
+	      treesit-font-lock-settings perl-ts-font-lock
+	      treesit-font-lock-feature-list perl-ts-font-lock-feature-list
+	      treesit-simple-indent-rules perl-ts-indent-settings)
   (treesit-major-mode-setup)
   (setq-local outline-level #'perl-ts-outline-level))
 
