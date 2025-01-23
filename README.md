@@ -1,4 +1,9 @@
 
+# Report bug or contribute
+
+Please send an email to <~pranshu/perl-ts-mode@lists.sr.ht> with bug
+or patch.
+
 # Info
 
 This is a major mode for perl, designed to be similar to cperl-mode.
