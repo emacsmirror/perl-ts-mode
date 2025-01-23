@@ -2,7 +2,8 @@
 # Report bug or contribute
 
 Please send an email to <~pranshu/perl-ts-mode@lists.sr.ht> with bug
-or patch.
+or patch.  You can view archives of the mailing list
+[here](https://lists.sr.ht/~pranshu/perl-ts-mode).
 
 # Info
 
