@@ -27,6 +27,8 @@ Should be pretty intutive, you use M-e and M-a to navigate around
 PODs.  This package also provides proper sexp navigation for perl.  In
 the following code:
 
+### Sexp navigation
+
 ```perl
 my $r = join '-', @arr + 2 - 1;
 ```
@@ -42,6 +44,20 @@ Commands like `C-M-b` and `C-M-f` will reflect on this.
 The imenu settings should work as expected, similar to how cperl-mode
 does it.
 
+## Outline
+
+The outline-mode (outline-minior-mode) is top notch, better than cperl.
+
+```elisp
+(setq outline-minor-mode-cycle t)
+```
+
+# Contributing
+
+There are 3 ways to make this mode better in order of preference:
+1. Contribute to the perl treesitter grammer and try to speed it up
+2. Contribute to perl-ts-mode.el
+3. Contribute to treesit.el in emasc core
 
 # Warning
 
