@@ -427,6 +427,19 @@ Argument STR is either a string, or a list of strings."
       'pod
     'perl))
 
+(defun perl-ts-forward-sentence (arg)
+  "`perl-ts-mode' implementation of `forward-sentence-function'.
+
+ARG is the same as in `forward-sentence'.  This function is a wrapper
+around `treesit-forward-sentence'."
+  (if (> arg 0)
+      (dotimes (_ arg)
+	(treesit-forward-sentence 1)
+	(while-let ((char (buffer-substring-no-properties (point) (+ (point) 1)))
+		    (_ (member char '(" " "	" ";"))))
+	  (forward-char 1)))
+    (treesit-forward-sentence arg)))
+
 (defun perl-ts-outline-level ()
   "The `outline-level' function for `perl-ts-mode'."
   (let ((node (treesit-node-at (point) treesit-primary-parser)))
@@ -517,7 +530,8 @@ Takes all the relevent commands from `cperl-mode'."
 	      treesit-font-lock-feature-list perl-ts-font-lock-feature-list
 	      treesit-simple-indent-rules perl-ts-indent-settings)
   (treesit-major-mode-setup)
-  (setq-local outline-level #'perl-ts-outline-level))
+  (setq-local outline-level #'perl-ts-outline-level
+	      forward-sentence-function #'perl-ts-forward-sentence))
 
 (provide 'perl-ts-mode)
 
