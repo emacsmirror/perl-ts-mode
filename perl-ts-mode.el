@@ -384,11 +384,21 @@ Argument STR is either a string, or a list of strings."
 
 (defun perl-ts-sexp (node)
   "Returns non-nil when NODE is a sexp."
-  (let ((nt (treesit-node-text node 1)))
-    (and
-     (not (member nt '( "{" "}" "[" "]" "(" ")" ";")))
-     (not (and (string= "operator" (treesit-node-field-name node))
-	       (= 1 (length nt)))))))
+  (let ((type (treesit-node-type node)))
+    (not
+     (or
+      ;; Expression statements are technically sexps, but this really
+      ;; makes navigation annoying.  Plus sentence commands already
+      ;; exist to work on these statements.
+      (string-match (regexp-opt
+		     (cons "expression_statement"
+			   (split-string "[{(;)}]" "" t)))
+		    type
+		    0 t)
+      (string= "expression_statement"
+	       (treesit-node-type (treesit-node-parent node)))
+      (and (string= "operator" (treesit-node-field-name node))
+	   (= 1 (length (treesit-node-text node t))))))))
 
 (defvar perl-ts-thing-settings
   `((perl

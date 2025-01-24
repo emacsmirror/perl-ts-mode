@@ -38,12 +38,13 @@ the following code:
 ```perl
 my $r = join '-', @arr + 2 - 1;
 ```
-The sexps would be:
+The sexps (circle bracket), and sentence[square bracker] would be:
 ```
-((my) ($r) = ((join) '-', (((@arr) + (2)) - (1))));
+[((my) ($r)) = ((join) '-', (((@arr) + (2)) - (1)));]
 ```
 
-Commands like `C-M-b` and `C-M-f` will reflect on this.
+Commands like `C-M-b`, `C-M-f`, `M-e`, `M-a` will reflect on this.  It
+makes moving around seem more fun and cool.
 
 ## Imenu
 
@@ -75,3 +76,7 @@ issues](https://github.com/tree-sitter-perl/tree-sitter-perl/issues/203)
 with the grammer, it is not advisable to use this if you will be
 working on large files.  As of 2025-01-21, these are being worked on
 rapidly.
+
+# TODO
+
+- Set `list` in `perl-ts-thing-settings`.
