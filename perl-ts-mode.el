@@ -337,7 +337,7 @@ Argument STR is either a string, or a list of strings."
       (seq-filter
        'identity
        (append
-	(mapcar 
+	(mapcar
 	 (pcase-lambda (`(,name . ,node))
 	   (if (eq 'package name)
 	       (prog1 nil
@@ -441,7 +441,7 @@ around `treesit-forward-sentence'."
     (treesit-forward-sentence arg)))
 
 (defun perl-ts-outline-level ()
-  "The `outline-level' function for `perl-ts-mode'."
+  "The function `outline-level' function for `perl-ts-mode'."
   (let ((node (treesit-node-at (point) treesit-primary-parser)))
     (pcase (treesit-node-type node)
       ;; pod comment
@@ -486,7 +486,7 @@ Takes all the relevent commands from `cperl-mode'."
   ;; function is in.
   (setq-local imenu-create-index-function 'perl-ts-imenu-create-index)
   (setq-local treesit-defun-type-regexp
-	"subroutine_declaration_statement\\|method_declaration_statement")
+	      "subroutine_declaration_statement\\|method_declaration_statement")
   (setq-local treesit-font-lock-level perl-ts-font-lock-level)
   (setq-local treesit-thing-settings perl-ts-thing-settings)
   (setq-local treesit-defun-name-function 'perl-ts-function-name)
