@@ -183,9 +183,10 @@ Argument STR is either a string, or a list of strings."
 	     (treesit-node-prev-sibling node t)))
       prev-sibling 0)
 
-     ((parent-is "list_expression") parent 0)
+     ((parent-is "list_expression\\|anonymous_hash_expression") parent 0)
 
      ((node-is "}") standalone-parent 0)
+     ((node-is ")") standalone-parent 2)
 
      ;; Don't indent.
      ((parent-is "heredoc_content") (lambda (_ _ bol) bol) 0)
