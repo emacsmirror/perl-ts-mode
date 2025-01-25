@@ -205,6 +205,27 @@ Argument STR is either a string, or a list of strings."
      (treesit-node-end node)
      'face 'cperl-hash-face)))
 
+(defun perl-ts-doc-markup (node &rest _)
+  "Markup special markup in NODE constructs for POD."
+  (seq-let (letter content)
+      (treesit-node-children node t)
+    (put-text-property (treesit-node-start letter)
+		       (treesit-node-end letter)
+		       'face
+		       'font-lock-doc-markup-face)
+    (when-let
+	((prop (pcase (string-to-char (treesit-node-text letter))
+		 (?B 'bold)
+		 (?I 'italic)
+		 (?L 'link)
+		 ;; We could do code injection for "C"
+		 ((or ?F ?C) 'default)
+		 (_ nil))))
+      (put-text-property (treesit-node-start content)
+			 (treesit-node-end content)
+			 'face
+			 prop))))
+
 (defvar perl-ts-font-lock
   (treesit-font-lock-rules
    :language 'perl
@@ -247,7 +268,7 @@ Argument STR is either a string, or a list of strings."
      (autoquoted_bareword) @font-lock-string-face)
    :language 'perl
    :feature 'declaration
-   `((variable_declaration (scalar) @font-lock-variable-name-face)
+   '((variable_declaration (scalar) @font-lock-variable-name-face)
      (signature (mandatory_parameter (scalar) @font-lock-variable-name-face))
      (localization_expression (scalar) @font-lock-variable-name-face))
    :language 'perl
@@ -275,7 +296,7 @@ Argument STR is either a string, or a list of strings."
    '([(heredoc_token) (heredoc_end)] @font-lock-constant-face)
    :language 'perl
    :feature 'number
-   `((number) @font-lock-number-face)
+   '((number) @font-lock-number-face)
    :language 'perl
    :feature 'regex-highlighting
    '((regexp_content) @perl-ts-highlight-regex
@@ -310,12 +331,15 @@ Argument STR is either a string, or a list of strings."
      (command_paragraph
       (content) @font-lock-variable-name-face)
      (cut_paragraph) @font-lock-doc-markup-face
-     ((plain_paragraph) @font-lock-doc-face))))
+     ((plain_paragraph) @font-lock-doc-face))
+   :language 'pod
+   :feature 'pod
+   '((interior_sequence) @perl-ts-doc-markup)))
 
 (defvar perl-ts-font-lock-feature-list
   '((keywords comment string class pod)
     (declaration core-functions number attributes)
-    (heredoc array intorpolated regex-highlighting)
+    (heredoc array intorpolated regex-highlighting pod-markup)
     (special-functions)))
 
 (defun perl-ts-function-name (node)

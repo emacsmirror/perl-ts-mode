@@ -80,3 +80,4 @@ rapidly.
 # TODO
 
 - Set `list` in `perl-ts-thing-settings`.
+- Try do injection for code markup inside pod.
