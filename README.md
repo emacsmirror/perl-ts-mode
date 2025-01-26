@@ -12,6 +12,9 @@ The major difference is that this mode uses a parser(done by
 treesitter) to provide it's features, instead of it based all on
 regexps.
 
+If you just, want to see how the colour looks like, go to
+https://p.bauherren.ovh/stuff/test.pl.html .
+
 # Prerequisets
 
 Just execute the following code and you should be ready to go.
