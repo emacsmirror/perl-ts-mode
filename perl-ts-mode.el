@@ -542,6 +542,12 @@ Takes all the relevent commands from `cperl-mode'."
 	       'perl-ts-outline-acceptable))
   (setq-local comment-start "#")
   ;; EXTREMLY delicate
+  (setq-local font-lock-defaults nil
+	      treesit-primary-parser (treesit-parser-create 'perl)
+	      treesit-font-lock-settings perl-ts-font-lock
+	      treesit-font-lock-feature-list perl-ts-font-lock-feature-list
+	      treesit-simple-indent-rules perl-ts-indent-settings)
+  (treesit-parser-create 'pod)
   (let ((args '(:host perl
 		      :embed perl
 		      :local t
@@ -562,11 +568,6 @@ Takes all the relevent commands from `cperl-mode'."
 				     :local t
 				     ((verbatim_paragraph (content) @cap))))
 		   args))))
-  (setq-local font-lock-defaults nil
-	      treesit-primary-parser (treesit-parser-create 'perl)
-	      treesit-font-lock-settings perl-ts-font-lock
-	      treesit-font-lock-feature-list perl-ts-font-lock-feature-list
-	      treesit-simple-indent-rules perl-ts-indent-settings)
   (treesit-major-mode-setup)
   (setq-local outline-level #'perl-ts-outline-level
 	      forward-sentence-function #'perl-ts-forward-sentence))
