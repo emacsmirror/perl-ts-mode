@@ -187,9 +187,12 @@ Argument STR is either a string, or a list of strings."
 
      ((node-is "}") standalone-parent 0)
      ((node-is ")") standalone-parent 2)
-
+     
      ;; Don't indent.
-     ((parent-is "heredoc_content") (lambda (_ _ bol) bol) 0)
+     ((parent-is "heredoc_content\\|string_content") (lambda (_ _ bol) bol) 0)
+
+     ((node-is "'\\|\"") column-0 0)
+     
      
      ((parent-is "block") standalone-parent 2)
 
@@ -213,7 +216,7 @@ Argument STR is either a string, or a list of strings."
 		       (treesit-node-end letter)
 		       'face
 		       'font-lock-doc-markup-face)
-    (when-let
+    (when-let*
 	((prop (pcase (string-to-char (treesit-node-text letter))
 		 (?B 'bold)
 		 (?I 'italic)
