@@ -5,7 +5,7 @@
 ;; Author: Pranshu Sharma <pranshu@bauherren.ovh>
 ;; Created: 2025, Jan
 ;; Keywords: languages, Perl
-;; Package-Requires: ((emacs "29.1"))
+;; Package-Requires: ((emacs "30.1"))
 ;; Version: 1.0.0
 ;; URL: https://hg.sr.ht/~pranshu/perl-ts-mode
 
@@ -36,6 +36,8 @@
 (require 'treesit)
 
 ;;; Code:
+
+(defvar treesit-primary-parser)
 
 (defgroup perl-ts nil
   "Major mode for editing perl files."
@@ -365,7 +367,7 @@ Argument STR is either a string, or a list of strings."
     ;; `n' is either a package or function name
     (save-excursion
       (seq-filter
-       'identity
+       #'identity
        (append
 	(mapcar
 	 (pcase-lambda (`(,name . ,node))
@@ -388,7 +390,7 @@ Argument STR is either a string, or a list of strings."
 	  '((package_statement name: (_) @package)
 	    (subroutine_declaration_statement
 	     name: (_) @name))))
-	(apply 'append
+	(apply #'append
 	       (mapcar
 		(lambda (class_node)
 		  (let ((cname (treesit-node-text
@@ -451,8 +453,7 @@ Argument STR is either a string, or a list of strings."
 
 (defun perl-ts-outline-acceptable (node)
   "Matches a comment NODE that starts with multiple hashes."
-  (message (treesit-node-type node))
-  (let ((gp (treesit-node-get node '((parent 2)))))
+  (let ((gp (treesit-node-parent (treesit-node-parent node))))
     (and (or (not gp)
 	     (member (treesit-node-type gp)
 		     '("class_statement" "package_statement")))
@@ -476,7 +477,7 @@ around `treesit-forward-sentence'."
       (dotimes (_ arg)
 	(treesit-forward-sentence 1)
 	(while-let ((char (buffer-substring-no-properties (point) (+ (point) 1)))
-		    (_ (member char '(" " "	" ";"))))
+		    ((member char '(" " "\t" ";"))))
 	  (forward-char 1)))
     (treesit-forward-sentence arg)))
 
@@ -562,7 +563,7 @@ Takes all the relevent commands from `cperl-mode'."
 		      ((pod) @capture))))
     (setq-local treesit-range-settings
 		(apply
-		 'treesit-range-rules
+		 #'treesit-range-rules
 		 (if perl-ts-highlight-verbatim
 		     (append args
 			     '(:host pod
