@@ -273,6 +273,9 @@ Argument STR is either a string, or a list of strings."
    :feature 'declaration
    '((variable_declaration (scalar) @font-lock-variable-name-face)
      (signature (mandatory_parameter (scalar) @font-lock-variable-name-face))
+     (signature (slurpy_parameter (array) @cperl-array-face))
+     (signature (slurpy_parameter (hash) @cperl-hash-face))
+     (signature (optional_parameter (scalar) @font-lock-variable-name-face))
      (localization_expression (scalar) @font-lock-variable-name-face))
    :language 'perl
    :feature 'array
