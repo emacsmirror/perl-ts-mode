@@ -82,7 +82,7 @@ Argument STR is either a string, or a list of strings."
 (defvar perl-ts-main-keywords
   (vconcat
    (perl-ts-str-to-list
-    "return if elsif else unless while do for local my our"))
+    "return if elsif else unless while do for local my our field"))
   "Primary keywords for perl.")
 
 (defvar perl-ts-special-operators
