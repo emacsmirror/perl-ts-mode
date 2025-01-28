@@ -276,15 +276,14 @@ Argument STR is either a string, or a list of strings."
      (localization_expression (scalar) @font-lock-variable-name-face))
    :language 'perl
    :feature 'array
-   :override t
-   '((array) @cperl-array-face
+   :override 'keep
+   '((arraylen) @cperl-array-face
      (hash_element_expression
       (container_variable) @cperl-hash-face)
      (array_element_expression
       (container_variable) @cperl-array-face)
-     (hash
-      "%" @cperl-hash-face
-      (varname) @perl-ts-highlight-hash)
+     (hash_element_expression hash: (_)
+			      @cperl-hash-face)
      (slice_container_variable) @cperl-hash-face
      (arraylen) @cperl-array-face)
    :language 'perl
