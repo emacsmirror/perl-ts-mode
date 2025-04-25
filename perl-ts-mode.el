@@ -6,7 +6,7 @@
 ;; Created: 2025, Jan
 ;; Keywords: languages, Perl
 ;; Package-Requires: ((emacs "30.1"))
-;; Version: 1.0.0
+;; Version: 1.1.0
 ;; URL: https://hg.sr.ht/~pranshu/perl-ts-mode
 
 ;; This program is free software; you can redistribute it and/or modify
